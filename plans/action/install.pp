@@ -303,6 +303,11 @@ plan peadm::action::install (
   # For now, waiting a short period of time is necessary to avoid a small race.
   ctrl::sleep(15)
 
+  # Ensure some basic configuration on the master needed at install time.
+  if ($version.versioncmp('2019.0') < 0) {
+    apply($master_target) { include peadm::setup::master }
+  }
+
   if !empty($agent_installer_targets) {
     run_command(inline_epp(@(HEREDOC/L)), $master_target)
       /opt/puppetlabs/bin/puppetserver ca sign --certname \
