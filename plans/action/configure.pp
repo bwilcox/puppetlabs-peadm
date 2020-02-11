@@ -73,8 +73,7 @@ plan peadm::action::configure (
   # Get the PE configuration directory on the master in a way that works for
   # non-puppet6 installations.
   $config_result = run_command('/usr/local/bin/puppet config print confdir', $master_target)
-  $config_data = $config_result.first
-  $master_config_dir = strip($config_data['stdout'])
+  $master_config_dir = strip($config_result.first['stdout'])
 
   apply($master_target) {
     # Necessary to give the sandboxed Puppet executor the configuration
