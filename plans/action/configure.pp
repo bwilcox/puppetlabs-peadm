@@ -70,13 +70,19 @@ plan peadm::action::configure (
   $puppetdb_database_host_string = $puppetdb_database_target.peadm::target_name()
   $puppetdb_database_replica_host_string = $puppetdb_database_replica_target.peadm::target_name()
 
+  # Get the PE configuration directory on the master in a way that works for
+  # non-puppet6 installations.
+  $config_result = run_command('/usr/local/bin/puppet config print confdir', $master_target)
+  $config_data = $config_result.first
+  $master_config_dir = strip($config_data['stdout'])
+
   apply($master_target) {
     # Necessary to give the sandboxed Puppet executor the configuration
     # necessary to connect to the classifier`
     file { 'node_manager.yaml':
       ensure  => file,
       mode    => '0644',
-      path    => Deferred('peadm::node_manager_yaml_location'),
+      path    => "${master_config_dir}/node_manager.yaml",
       content => epp('peadm/node_manager.yaml.epp', {
         server => $master_host_string,
       }),
